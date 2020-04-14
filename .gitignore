@@ -1,0 +1,6 @@
+
+*.config
+*.resx
+bin/
+obj/
+.vs/OneDriveMapper/v16/.suo
