@@ -12,7 +12,8 @@ namespace OneDriveMapper
         public string Url { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public string Drive { get; set; } = "Z";
+        public char Drive { get; set; } = 'Z';
+        public bool AutoRun { get; set; } = true;
 
         #region IO Logic
 

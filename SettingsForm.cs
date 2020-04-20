@@ -10,16 +10,16 @@ using System.Windows.Forms;
 
 namespace OneDriveMapper
 {
-    public partial class MainForm : Form
+    public partial class SettingsForm : Form
     {
         private readonly Settings settings;
 
-        public MainForm()
+        public SettingsForm()
         {
             InitializeComponent();
         }
 
-        public MainForm(Settings settings) : this()
+        public SettingsForm(Settings settings) : this()
         {
             this.settings = settings;
             this.bind();
@@ -32,6 +32,7 @@ namespace OneDriveMapper
             this.txtUsername.DataBindings.Add("Text", this.settings, "Username");
             this.txtPassword.DataBindings.Add("Text", this.settings, "Password");
             this.txtDrive.DataBindings.Add("Text", this.settings, "Drive");
+            this.chbAutorun.DataBindings.Add("Checked", this.settings, "Autorun");
         }
     }
 }
