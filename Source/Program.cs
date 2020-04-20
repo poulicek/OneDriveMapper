@@ -50,16 +50,27 @@ namespace OneDriveMapper
             try
             {
                 if (!showUI)
+                {
                     applySettings(settings);
-                else if (showSettings(settings))
+                    return;
+                }
+
+                while (showSettings(settings))
                 {
                     var message = applySettings(settings);
-                    MessageBox.Show(string.IsNullOrEmpty(message) ? "Mapping finished!" : message, "OneDrive Mapper", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (string.IsNullOrEmpty(message))
+                    {
+                        MessageBox.Show("Mapping finished!", "OneDrive Mapper", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        break;
+                    }
+
+                    MessageBox.Show(message, "OneDrive Mapper", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "OneDrive Mapper - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (showUI)
+                    MessageBox.Show(ex.Message, "OneDrive Mapper - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -98,10 +109,11 @@ namespace OneDriveMapper
                     Arguments = $"use {drive.ToString().ToUpper()}: \"{url}\" /user:{username} {password} /persistent:no",
                     UseShellExecute = false,
                     RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                 };
                 p.Start();
 
-                var result = p.StandardOutput.ReadToEnd();
+                var result = p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd();
                 p.WaitForExit();
 
                 return result;
