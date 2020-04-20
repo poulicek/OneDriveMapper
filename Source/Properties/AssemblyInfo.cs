@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("OneDriveMapper")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("OneDrive Mapper")]
+[assembly: AssemblyDescription("Maps the OneDrive folder as network drive")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("OneDriveMapper")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCompany("BitIT s.r.o.")]
+[assembly: AssemblyProduct("OneDrive Mapper")]
+[assembly: AssemblyCopyright("Copyright © BitIT s.r.o. 2020")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
