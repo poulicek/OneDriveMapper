@@ -9,7 +9,7 @@ namespace OneDriveMapper
     {
         private string filePath;
 
-        public string Url { get; set; }
+        public string CID { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
         public char Drive { get; set; } = 'Z';

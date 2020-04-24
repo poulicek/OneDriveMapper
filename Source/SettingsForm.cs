@@ -1,11 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace OneDriveMapper
@@ -28,11 +22,16 @@ namespace OneDriveMapper
 
         private void bind()
         {
-            this.txtUrl.DataBindings.Add("Text", this.settings, "Url");
+            this.txtCID.DataBindings.Add("Text", this.settings, "CID");
             this.txtUsername.DataBindings.Add("Text", this.settings, "Username");
             this.txtPassword.DataBindings.Add("Text", this.settings, "Password");
             this.txtDrive.DataBindings.Add("Text", this.settings, "Drive");
             this.chbAutorun.DataBindings.Add("Checked", this.settings, "Autorun");
+        }
+
+        private void cidPreview_Click(object sender, EventArgs e)
+        {
+            Process.Start("https://onedrive.live.com/");
         }
     }
 }

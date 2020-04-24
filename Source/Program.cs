@@ -35,10 +35,10 @@ namespace OneDriveMapper
         /// <summary>
         /// Applies the settings
         /// </summary>
-        private static string applySettings(Settings settings)
+        private static void applySettings(Settings settings)
         {
             setStartup(settings.AutoRun);
-            return mapDrive(settings.Drive, settings.Url, settings.Username, settings.Password);
+            mapDrive(settings.Drive, settings.CID, settings.Username, settings.Password);
         }
 
 
@@ -47,31 +47,13 @@ namespace OneDriveMapper
         /// </summary>
         private static void applySettings(Settings settings, bool showUI)
         {
-            try
+            if (!showUI)
+                applySettings(settings);
+            else
             {
-                if (!showUI)
-                {
-                    applySettings(settings);
-                    return;
-                }
-
-                while (showSettings(settings))
-                {
-                    var message = applySettings(settings);
-                    if (string.IsNullOrEmpty(message))
-                    {
-                        MessageBox.Show("Mapping finished!", "OneDrive Mapper", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        break;
-                    }
-
-                    MessageBox.Show(message, "OneDrive Mapper", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                if (showUI)
-                    MessageBox.Show(ex.Message, "OneDrive Mapper - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                while (!showSettings(settings))
+                    continue;
+            }   
         }
 
 
@@ -80,15 +62,33 @@ namespace OneDriveMapper
         /// </summary>
         private static bool showSettings(Settings settings)
         {
-            var dlg = new SettingsForm(settings);
-            if (dlg.ShowDialog() == DialogResult.OK)
+            var result = true;
+            using (var dlg = new SettingsForm(settings))
             {
-                settings.Save();
-                return true;
+                dlg.FormClosing += (s, e) =>
+                {
+                    try
+                    {
+                        if (dlg.DialogResult == DialogResult.OK)
+                        {
+                            settings.Save();
+                            applySettings(settings);
+                            MessageBox.Show("Mapping finished!", "OneDrive Mapper", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        }
+
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "OneDrive Mapper - Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        result = false;
+                    }
+                };
+                dlg.ShowDialog();
             }
 
-            return false;
+            return result;
         }
+
 
         #endregion
 
@@ -97,27 +97,31 @@ namespace OneDriveMapper
         /// <summary>
         /// Maps the drive
         /// </summary>
-        private static string mapDrive(char drive, string url, string username, string password)
+        private static void mapDrive(char drive, string cid, string username, string password)
         {
-            using (var p = new Process())
-            {
-                p.StartInfo = new ProcessStartInfo()
-                {
-                    WindowStyle = ProcessWindowStyle.Hidden,
-                    CreateNoWindow = true,
-                    FileName = "net.exe",
-                    Arguments = $"use {drive.ToString().ToUpper()}: \"{url}\" /user:{username} {password} /persistent:no",
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                };
-                p.Start();
+            ProcessAsUser.Launch($"net.exe use {drive.ToString().ToUpper()}: \"https://d.docs.live.net/{cid}\" /user:{username} {password} /persistent:no");
 
-                var result = p.StandardOutput.ReadToEnd() + p.StandardError.ReadToEnd();
-                p.WaitForExit();
 
-                return result;
-            }
+            //using (var p = new Process())
+            //{
+            //    p.StartInfo = new ProcessStartInfo()
+            //    {
+            //        WindowStyle = ProcessWindowStyle.Hidden,
+            //        CreateNoWindow = true,
+            //        FileName = "net.exe",
+            //        Arguments = $"use {drive.ToString().ToUpper()}: \"https://d.docs.live.net/{cid}\" /user:{username} {password} /persistent:no",
+            //        UseShellExecute = false,
+            //        RedirectStandardOutput = true,
+            //        RedirectStandardError = true,
+            //    };
+            //    p.Start();
+
+            //    var error = p.StandardError.ReadToEnd();
+            //    p.WaitForExit();
+
+            //    if (!string.IsNullOrEmpty(error))
+            //        throw new Exception(error);
+            //}
         }
 
         /// <summary>
