@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
-using Microsoft.Win32;
 
 namespace OneDriveMapper
 {
@@ -99,47 +99,53 @@ namespace OneDriveMapper
         /// </summary>
         private static void mapDrive(char drive, string cid, string username, string password)
         {
-            ProcessAsUser.Launch($"net.exe use {drive.ToString().ToUpper()}: \"https://d.docs.live.net/{cid}\" /user:{username} {password} /persistent:no");
+            //ProcessAsUser.Launch($"net.exe use {drive.ToString().ToUpper()}: \"https://d.docs.live.net/{cid}\" /user:{username} {password} /persistent:no");
 
+            using (var p = new Process())
+            {
+                p.StartInfo = new ProcessStartInfo()
+                {
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    CreateNoWindow = true,
+                    FileName = "net.exe",
+                    Arguments = $"use {drive.ToString().ToUpper()}: \"https://d.docs.live.net/{cid}\" /user:{username} {password} /persistent:no",
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                };
 
-            //using (var p = new Process())
-            //{
-            //    p.StartInfo = new ProcessStartInfo()
-            //    {
-            //        WindowStyle = ProcessWindowStyle.Hidden,
-            //        CreateNoWindow = true,
-            //        FileName = "net.exe",
-            //        Arguments = $"use {drive.ToString().ToUpper()}: \"https://d.docs.live.net/{cid}\" /user:{username} {password} /persistent:no",
-            //        UseShellExecute = false,
-            //        RedirectStandardOutput = true,
-            //        RedirectStandardError = true,
-            //    };
-            //    p.Start();
+                p.Start();
 
-            //    var error = p.StandardError.ReadToEnd();
-            //    p.WaitForExit();
+                var error = p.StandardError.ReadToEnd();
+                p.WaitForExit();
 
-            //    if (!string.IsNullOrEmpty(error))
-            //        throw new Exception(error);
-            //}
+                if (!string.IsNullOrEmpty(error))
+                    throw new Exception(error);
+            }
         }
 
         /// <summary>
         /// Setting the startup state
         /// </summary>
-        private static bool setStartup(bool set)
+        private static void setStartup(bool set)
         {
-            try
-            {
-                var rk = Registry.CurrentUser.OpenSubKey("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", true);
-                if (set)
-                    rk.SetValue(REG_NAME, Application.ExecutablePath.ToString() + " -s");
-                else
-                    rk.DeleteValue(REG_NAME, false);
+            var linkFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Startup), Application.ProductName + ".lnk");
 
-                return set;
+            if (set)
+            {
+                var shell = new IWshRuntimeLibrary.WshShell();
+                var shortcut = (IWshRuntimeLibrary.IWshShortcut)shell.CreateShortcut(linkFile);
+
+                shortcut.Description = "One Drive Mapper silent launcher";
+                shortcut.IconLocation = Application.ExecutablePath;
+                shortcut.TargetPath = Application.ExecutablePath;
+                shortcut.Arguments = " -s";
+                shortcut.Save();
             }
-            catch { return !set; }
+            else if (File.Exists(linkFile))
+            {
+                File.Delete(linkFile);
+            }
         }
     }
 

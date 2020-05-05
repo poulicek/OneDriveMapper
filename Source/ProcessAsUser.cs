@@ -112,6 +112,7 @@ namespace OneDriveMapper
             IntPtr hObject);
 
         private const short SW_SHOW = 5;
+        private const short SW_HIDE = 0;
         private const uint TOKEN_QUERY = 0x0008;
         private const uint TOKEN_DUPLICATE = 0x0002;
         private const uint TOKEN_ASSIGN_PRIMARY = 0x0001;
@@ -146,7 +147,7 @@ namespace OneDriveMapper
 
             si.lpDesktop = @"WinSta0\Default"; //Modify as needed
             si.dwFlags = STARTF_USESHOWWINDOW | STARTF_FORCEONFEEDBACK;
-            si.wShowWindow = SW_SHOW;
+            si.wShowWindow = SW_HIDE;
             //Set other si properties as required.
 
             result = CreateProcessAsUser(
